@@ -1,0 +1,1495 @@
+/* ==========================================================================
+   1. ПОДКЛЮЧЕНИЕ ШРИФТОВ (NEULIS SANS И NEULIS ALT)
+   ========================================================================== */
+@font-face {
+    font-family: 'Neulis Sans';
+    src: url('fonts/NeulisSans-Regular.woff2') format('woff2'),
+         url('fonts/NeulisSans-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Neulis Sans';
+    src: url('fonts/NeulisSans-Bold.woff2') format('woff2'),
+         url('fonts/NeulisSans-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Neulis Alt';
+    src: url('fonts/NeulisAlt-Regular.woff2') format('woff2'),
+         url('fonts/NeulisAlt-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+
+/* ==========================================================================
+   1.1 ГЛОБАЛЬНЫЙ СБРОС ШРИФТОВ НА ВСЁМ САЙТЕ
+   ========================================================================== */
+*, *::before, *::after {
+    font-family: 'Neulis Sans', sans-serif !important;
+}
+
+/* Исключение для элементов, где вам может понадобиться альтернативный Neulis Alt */
+.alt-font, .voting-text-contour, .voting-text-main {
+    /* Если захотите использовать альтернативный шрифт для фонового слова VOTING, раскомментируйте строку ниже: */
+    /* font-family: 'Neulis Alt', sans-serif !important; */
+}
+
+/* Обнуление базовых отступов */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ==========================================================================
+   2. ГЛАВНЫЙ ФОН И СЛОИ (КОНЦЕПТ С НЕОНОМ)
+   ========================================================================== */
+body {
+    min-height: 100vh;
+    /* Мягкий неоновый градиент: из ярко-фиолетового в глубокий темно-синий */
+    background: radial-gradient(circle at bottom left, #d300c5 0%, #191954 40%, #080825 100%);
+    background-attachment: fixed;
+    padding-top: 140px; /* Отступ сверху, чтобы шапка не перекрывала контент */
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* ==========================================================================
+   3. ИДЕАЛЬНАЯ КАПСУЛЬНАЯ ШАПКА (ЖИДКОЕ СТЕКЛО)
+   ========================================================================== */
+.header {
+    position: fixed;
+    top: -100px; /* Изначально скрыта для анимации появления */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 1200px;
+    height: 64px; /* Фиксированная высота шапки */
+    
+    /* Темное матовое жидкое стекло */
+    background: rgba(255, 255, 255, 0.08); 
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    
+    /* Идеальное овальное скругление (ровно половина высоты) */
+    border-radius: 32px; 
+    border: 1px solid rgba(255, 255, 255, 0.15); /* Блик на грани */
+    overflow: hidden;
+    z-index: 1000;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    
+    /* Анимация плавного выезда шапки сверху */
+    animation: slideDown 0.6s ease forwards;
+}
+
+.header__container {
+    display: flex;
+    justify-content: space-between; /* Распределяет левую заглушку, логотип и корзину */
+    align-items: center;
+    height: 100%;
+    padding: 0 24px;
+}
+
+.header__cart:hover {
+    background-color: rgba(255, 255, 255, 0.35) !important;
+    transform: scale(1.05);
+}
+
+/* ==========================================================================
+   4. ТРЕХСЛОЙНЫЙ ТЕКСТ VOTING (ШРИФТ NEULIS BOLD С НАХЛЕСТОМ)
+   ========================================================================== */
+.bg-voting-wrapper {
+    position: absolute;
+    top: 60px; /* Положение по vertical под шапкой */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+    /* Отрицательный зазор стягивает слова друг на друга, создавая плотный нахлест */
+    gap: -3.5vw; 
+    
+    z-index: 1; /* Лежат на заднем плане под карточками */
+    pointer-events: none; /* Не мешает кликам */
+    
+    /* Плавное проявление заголовка */
+    animation: fadeInText 1s ease forwards;
+}
+
+.voting-text-contour,
+.voting-text-main {
+    font-family: 'Neulis Sans', sans-serif !important;
+    font-size: 11vw; /* Массивный адаптивный размер букв */
+    font-weight: 700 !important; /* Принудительно включаем Neulis Bold */
+    text-transform: uppercase;
+    line-height: 0.75; /* Сжимает невидимые границы букв */
+    letter-spacing: -2px; /* Легкое сжатие букв по горизонтали */
+}
+
+/* Контурные слова (Верхнее и Нижнее) */
+.voting-text-contour {
+    color: transparent;
+    -webkit-text-stroke: 2px rgba(211, 0, 197, 0.4); 
+    opacity: 0.65;
+}
+
+/* Central белое слово */
+.voting-text-main {
+    color: #ffffff;
+    position: relative;
+    z-index: 2; /* Белые буквы гарантированно перекрывают розовые контуры сверху */
+    text-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+}
+
+/* ==========================================================================
+   5. КОНТЕЙНЕР И КАРТОЧКИ (ПРОПОРЦИИ ИЗ FIGMA + СТЫКОВКА С JS)
+   ========================================================================== */
+.cards-container {
+    display: flex; /* Flex-режим для жесткого удержания размеров карточек */
+    justify-content: center; /* Центрируем ряд карточек на экране */
+    gap: 16px; /* Зазор между карточками */
+    width: 100%;
+    margin: 50px auto 0 auto; /* Карточками слегка перекрываем нижний текст VOTING */
+    padding: 0 20px;
+    position: relative;
+    z-index: 10; /* Карточки строго поверх фона */
+}
+
+.card {
+    /* Прозрачный хамелеон-фон, пропускающий неоновый бэкграунд */
+    background: rgba(255, 255, 255, 0.03); 
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    
+    /* ТОЧНЫЕ РАЗМЕРЫ ИЗ ВАШЕЙ FIGMA */
+    width: 348px;
+    height: 571px;
+    flex-shrink: 0; /* Запрещаем браузеру сжимать карточки в узком окне */
+    
+    border-radius: 40px; /* Крупное скругление краев карточки */
+    padding: 24px; /* Внутренний отступ */
+    
+    /* Распределяем контент по высоте: фото сверху, кнопка строго внизу */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; 
+    
+    /* Анимация при наведении на карточку: приподнимание и свечение */
+    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), 
+                box-shadow 0.4s ease, 
+                border-color 0.4s ease, 
+                background 0.4s ease;
+                
+    /* Начальное скрытие для анимации поочередного появления */
+    opacity: 0;
+    transform: translateY(40px);
+    animation: fadeInUp 0.6s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+}
+
+/* Эффект наведения на карточку */
+.card:hover {
+    transform: translateY(-8px) !important;
+    box-shadow: 0 12px 40px rgba(211, 0, 197, 0.15);
+    border-color: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+/* Эффект для карточки, за которую отдан голос */
+.card.is-voted {
+    border: 1px solid rgba(211, 0, 197, 0.6) !important;
+    box-shadow: 0 0 25px rgba(211, 0, 197, 0.25) !important;
+    background: rgba(211, 0, 197, 0.08) !important;
+}
+
+/* Белый квадрат обложки внутри карточки */
+.card__image {
+    width: 100%;
+    aspect-ratio: 1 / 1; /* Жесткий квадрат */
+    background-color: #ffffff;
+    border-radius: 28px; /* Округлость углов картинки */
+    transition: transform 0.4s ease;
+}
+
+.card:hover .card__image {
+    transform: scale(1.02); /* Легкое увеличение картинки при наведении на карточку */
+}
+
+/* Блок с текстовой информацией */
+.card__info {
+    margin-top: auto; /* Текст прижимается ближе к кнопке, оставляя воздух под фото */
+    margin-bottom: 12px;
+}
+
+/* Имя артиста: шрифт Neulis Sans с жирным начертанием (Bold) */
+.card__artist {
+    font-family: 'Neulis Sans', sans-serif !important;
+    font-weight: 700 !important; /* Включает Bold-версию */
+    font-size: 16px;
+    margin-bottom: 4px;
+    color: #ffffff;
+}
+
+/* Песня и страна: переключаем на шрифт Neulis Alt */
+.card__music, 
+.card__country {
+    font-family: 'Neulis Alt', sans-serif !important;
+    font-weight: 400 !important; /* Обычное начертание */
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7); /* Приглушенный белый текст */
+    line-height: 1.4;
+}
+
+/* Идеальная овальная кнопка Vote */
+.card__button {
+    background-color: #ffffff;
+    color: #000000;
+    border: none;
+    font-family: 'Neulis Sans', sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 15px;
+    
+    /* Размеры для узкого вытянутого овала-капсулы */
+    padding: 0 28px; 
+    height: 42px; 
+    border-radius: 21px; /* Половина высоты кнопки */
+    
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    
+    cursor: pointer;
+    align-self: flex-start; /* Четко прижимает кнопку влево */
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                background-color 0.3s ease, 
+                color 0.3s ease,
+                box-shadow 0.3s ease;
+}
+
+.card__button:hover {
+    transform: scale(1.06);
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
+}
+
+/* Состояние кнопки "Voted" */
+.card.is-voted .card__button {
+    background-color: #d300c5;
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(211, 0, 197, 0.4);
+}
+
+.card.is-voted .card__button:hover {
+    background-color: #e600d8;
+}
+
+/* ==========================================================================
+   6. КЛЮЧЕВЫЕ КАДРЫ (KEYFRAMES) ДЛЯ ВСЕХ АНИМАЦИЙ
+   ========================================================================== */
+/* Выезд шапки сверху */
+@keyframes slideDown {
+    to { top: 20px; }
+}
+
+/* Проявление фонового текста */
+@keyframes fadeInText {
+    from { opacity: 0; transform: translate(-50%, -20px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* Поочередное появление карточек снизу вверх */
+@keyframes fadeInUp {
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Подпрыгивание корзины при обновлении счета */
+@keyframes bounceCart {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); background-color: rgba(255, 255, 255, 0.4); }
+}
+
+.bounce-animation {
+    animation: bounceCart 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* ==========================================================================
+   7. АДАПТИВНОСТЬ ДЛЯ МОБИЛЬНЫХ ЭКРАНОВ И НОУТБУКОВ
+   ========================================================================== */
+@media (max-width: 1850px) {
+    .cards-container {
+        flex-wrap: wrap; /* Разрешаем карточкам переноситься вниз, если им тесно */
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .header { height: 56px; border-radius: 28px; }
+    .bg-voting-wrapper { top: 40px; gap: -4.5vw; }
+    .voting-text-contour, .voting-text-main { font-size: 14vw; }
+}
+/* ПАНЕЛЬ УПРАВЛЕНИЯ ГОЛОСАМИ НА КАРТОЧКЕ */
+.vote-control {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 20px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: 6px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+.vote-btn {
+    width: 45px;
+    height: 45px;
+    border-radius: 10px;
+    border: none;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    background: #fff;
+    color: #000;
+    transition: all 0.2s;
+}
+.vote-btn:disabled {
+    background: rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.3);
+    cursor: not-allowed;
+}
+.vote-btn.btn-plus {
+    background: #ff007f;
+    color: #fff;
+}
+.vote-btn.btn-plus:hover:not(:disabled) { 
+    background: #e00070; 
+}
+.vote-amount {
+    font-size: 18px;
+    font-weight: bold;
+    min-width: 30px;
+    text-align: center;
+}
+
+/* ВЫЕЗЖАЮЩАЯ НИЖНЯЯ ПАНЕЛЬ С ОТПРАВКОЙ */
+.submit-panel {
+    position: fixed;
+    bottom: -100px; /* Скрыта по умолчанию */
+    left: 0;
+    width: 100%;
+    background: #0f0426;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 16px 0;
+    z-index: 999;
+    transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+}
+.submit-panel.is-active {
+    bottom: 0; /* Выезжает, когда есть голоса */
+}
+.submit-panel__content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+}
+.submit-panel p { margin: 0; font-size: 16px; }
+.submit-panel p strong { color: #00ff66; font-size: 18px; }
+.submit-panel__actions { display: flex; gap: 12px; }
+
+.panel-btn {
+    padding: 12px 28px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    font-size: 14px;
+}
+.btn-clear {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+}
+.btn-clear:hover { background: rgba(255,255,255,0.2); }
+.btn-submit {
+    background: #00ff66;
+    color: #000;
+    box-shadow: 0 4px 15px rgba(0, 255, 102, 0.3);
+}
+.btn-submit:hover { background: #00e056; }
+/* Кнопки управления голосами на карточке */
+/* Плавное изменение ширины для вашей капсулы */
+.vote-control {
+    position: relative;
+    width: 90px; /* Изначальная ширина кнопки с надписью Vote */
+    overflow: hidden;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Надпись "Vote" — подгоняем под точный вид с оригинального сайта */
+.vote-control::before {
+    content: "Vote";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: inherit;    /* Наследует белый фон вашей кнопки */
+    color: inherit;         /* Наследует цвет текста кнопки */
+    
+    /* ТОЧНЫЙ СТИЛЬ ШРИФТА ДЛЯ НАДПИСИ VOTE */
+    font-family: 'Neulis Sans', sans-serif;
+    font-weight: 700;       /* Включаем вашу Bold-версию (из @font-face с weight: 700) */
+    font-size: 13px;        /* Чуть уменьшенный, плотный размер как на esc.vote */
+    letter-spacing: -0.2px; /* Легкое сжатие межбуквенного интервала для плотности */
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s ease, visibility 0.2s;
+    z-index: 5;
+}
+
+/* Переключение в счетчик при наличии класса .active */
+.vote-control.active {
+    width: 135px; /* Аккуратное расширение под счетчик */
+}
+
+.vote-control.active::before {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* ШРИФТ ДЛЯ ЦИФРЫ СЧЕТЧИКА (1, 2, 3...) */
+.vote-control .vote-amount {
+    font-family: 'Neulis Sans', sans-serif !important;
+    font-weight: 700;       /* Такая же жирность, как у надписи Vote */
+    font-size: 14px !important;
+    color: inherit;
+    z-index: 1;
+}
+
+/* ШРИФТ И СТИЛЬ ДЛЯ ЗНАКОВ МИНУС И ПЛЮС */
+.vote-control .vote-btn {
+    font-family: 'Neulis Sans', sans-serif !important;
+    font-weight: 700;       /* Делаем знаки '-' и '+' отчетливыми и плотными */
+    font-size: 16px !important;
+    color: inherit;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.vote-btn {
+    width: 45px !important;
+    height: 45px !important;
+    border-radius: 10px !important;
+    border: none !important;
+    font-size: 20px !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+}
+.vote-btn:disabled {
+    background: rgba(255,255,255,0.1) !important;
+    color: rgba(255,255,255,0.3) !important;
+    cursor: not-allowed !important;
+}
+.vote-btn.btn-plus {
+    background: #ff007f !important;
+    color: #ffffff !important;
+}
+/* Создаем маску для выкатывания цифр */
+.vote-amount {
+    display: inline-block;
+    position: relative;
+    overflow: hidden; /* Скрывает цифру, пока она внизу */
+    height: 20px; /* Фиксированная высота для анимации */
+    line-height: 20px;
+    min-width: 18px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* Стили для старой и новой цифры во время анимации */
+.vote-digit {
+    display: block;
+    height: 20px;
+    line-height: 20px;
+    font-family: 'Neulis Sans', sans-serif !important;
+    font-weight: 700;
+    transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.25s ease;
+}
+
+/* Состояние перед выкатыванием (новая цифра ждет внизу) */
+.vote-digit.slide-in {
+    transform: translateY(100%);
+    opacity: 0;
+}
+
+/* Рабочее состояние (цифра по центру) */
+.vote-digit.active {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+/* Состояние улетающей наверх цифры */
+.vote-digit.slide-out {
+    transform: translateY(-100%);
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+
+/* Нижняя панель подтверждения */
+.submit-panel {
+    position: fixed !important;
+    bottom: -100px;
+    left: 0;
+    width: 100%;
+    background: #0f0426 !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
+    padding: 16px 0;
+    z-index: 9999 !important;
+    transition: bottom 0.4s ease;
+}
+.submit-panel.is-active {
+    bottom: 0 !important;
+}
+.submit-panel__content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.panel-btn {
+    padding: 12px 28px !important;
+    border-radius: 20px !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    border: none !important;
+}
+.btn-clear { background: rgba(255,255,255,0.1) !important; color: #fff !important; }
+.btn-submit { background: #00ff66 !important; color: #000 !important; }
+/* 1. Стилизуем сам контейнер под вашу белую кнопку из концепта */
+.vote-control {
+    position: relative; /* Важно для позиционирования текста */
+    display: inline-flex; /* Не ломает блочную верстку */
+    align-items: center;
+    justify-content: space-between;
+    
+    /* Точный дизайн из вашего концепта */
+    background: #ffffff !important;
+    color: #000000 !important;
+    border-radius: 20px !important;
+    padding: 4px 12px !important;
+    width: 90px !important; /* Стартовая ширина кнопки Vote */
+    height: 36px !important;
+    box-sizing: border-box;
+    overflow: hidden;
+    cursor: pointer;
+    
+    /* Плавное расширение кнопки при активации счетчика */
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s !important;
+}
+
+/* 2. Создаем слой со словом "Vote" прямо поверх кнопок */
+.vote-control::before {
+    content: "Vote";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #ffffff; /* Полностью закрывает кнопки пока голосов 0 */
+    color: #1a1a1a; /* Темный текст */
+    font-weight: bold;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s ease, visibility 0.2s;
+    z-index: 5;
+}
+
+/* 3. Когда добавляется класс .active, кнопка расширяется, а текст "Vote" исчезает */
+.vote-control.active {
+    width: 130px !important; /* Расширяемся под счетчик */
+}
+.vote-control.active::before {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* 4. Внутренние элементы (минус, плюс, цифра) аккуратно подгоняем под белый фон */
+.vote-control .vote-amount {
+    color: #000000 !important;
+    font-weight: bold;
+    font-size: 15px;
+    z-index: 1;
+}
+
+.vote-control .vote-btn {
+    background: transparent !important;
+    border: none !important;
+    color: #000000 !important;
+    font-size: 18px !important;
+    font-weight: bold !important;
+    cursor: pointer;
+    padding: 0 4px !important;
+    min-width: 20px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
+/* Отключаем прозрачность для стандартного disabled, чтобы не портить вид */
+.vote-control .vote-btn:disabled {
+    opacity: 0.3 !important;
+    cursor: not-allowed;
+}
+/* 1. Создаем фиксированный коридор-маску для цифры */
+.vote-amount {
+    display: inline-block !important;
+    position: relative !important;
+    overflow: hidden !important; /* Скрывает цифру, пока она вне границ */
+    height: 20px !important;     /* Высота под размер шрифта */
+    line-height: 20px !important;
+    min-width: 16px !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+/* 2. Стили для элементов цифр */
+.vote-digit {
+    display: block !important;
+    height: 20px !important;
+    line-height: 20px !important;
+    font-family: 'Neulis Sans', sans-serif !important;
+    font-weight: 700 !important;
+    text-align: center !important;
+}
+
+/* 3. Анимация для улетающей НАВЕРХ старой цифры */
+.vote-digit.slide-out {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    animation: rollUpOut 0.22s cubic-bezier(0.25, 1, 0.5, 1) forwards !important;
+}
+
+/* 4. Анимация для выезжающей СНИЗУ новой цифры */
+.vote-digit.slide-in {
+    animation: rollUpIn 0.22s cubic-bezier(0.25, 1, 0.5, 1) forwards !important;
+}
+
+/* Описание движений */
+@keyframes rollUpOut {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(-100%); opacity: 0; }
+}
+
+@keyframes rollUpIn {
+    0% { transform: translateY(100%); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+#header-cart {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px; /* Отступ между иконкой и цифрой */
+    
+    /* Точный цвет, прозрачность и размытие как на esc.vote */
+    background: rgba(140, 140, 140, 0.45) !important; 
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    
+    /* Пропорции капсулы */
+    height: 34px !important;
+    padding: 0 18px !important;
+    border-radius: 17px !important; /* Половина высоты для идеальной капсулы */
+    
+    /* Стили текста и вашего шрифта */
+    color: #ffffff !important;
+    font-family: 'Neulis Sans', sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 14px !important;
+    
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* Эффект легкого блика при наведении */
+#header-cart:hover {
+    background: rgba(140, 140, 140, 0.55) !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+/* Размер иконки внутри капсулы */
+#header-cart .cart-svg {
+    width: 14px;
+    height: 14px;
+    display: block;
+}/* --- ПЛАВНЫЙ ВЫЕЗД НИЖНЕЙ ПАНЕЛИ --- */
+.submit-panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(20, 20, 25, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 15px 0;
+    z-index: 100;
+    
+    /* Изначально панель спрятана ниже экрана */
+    transform: translateY(100%);
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+}
+
+/* Класс, который добавляется через JS при наличии голосов */
+.submit-panel.visible {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+/* --- МОДАЛЬНОЕ ОКНО РЕЗУЛЬТАТОВ (ФИНАЛ) --- */
+.results-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 10, 12, 0.8);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    
+    /* Плавное появление окна */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.results-modal.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.results-content {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 24px;
+    padding: 30px;
+    width: 90%;
+    max-width: 450px;
+    color: #ffffff;
+    font-family: 'Neulis Sans', sans-serif;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    transform: scale(0.9);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.results-modal.active .results-content {
+    transform: scale(1);
+}
+
+.results-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    letter-spacing: -0.5px;
+}
+
+.results-list {
+    text-align: left;
+    margin: 20px 0;
+    max-height: 240px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+/* Стилизация скроллбара в результатах */
+.results-list::-webkit-scrollbar {
+    width: 4px;
+}
+.results-list::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+}
+
+.results-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.results-item:last-child {
+    border-bottom: none;
+}
+
+.results-item-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.results-item-artist {
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.results-item-country {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+}
+
+.results-item-count {
+    background: #ffffff;
+    color: #111116;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 13px;
+}
+
+.close-results-btn {
+    background: #ffffff;
+    color: #111116;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 20px;
+    font-family: 'Neulis Sans', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 10px;
+    transition: background 0.2s;
+}
+
+.close-results-btn:hover {
+    background: #e2e2e9;
+}
+/* --- СТИЛИЗАЦИЯ БОКОВОЙ КОРЗИНЫ --- */
+.cart-sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 360px;
+    height: 100%;
+    /* Эффект жидкого стекла */
+    background: rgba(20, 20, 25, 0.85) !important;
+    backdrop-filter: blur(25px) !important;
+    -webkit-backdrop-filter: blur(25px) !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.5);
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    
+    /* Изначально скрыта за правым краем */
+    transform: translateX(100%);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Открытие корзины */
+.cart-sidebar.open {
+    transform: translateX(0);
+}
+
+/* Затемняющая подложка */
+.cart-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 190;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+.cart-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Шапка корзины */
+.cart-sidebar__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.cart-sidebar__title {
+    font-family: 'Neulis Sans', sans-serif !important;
+    font-weight: 700;
+    font-size: 20px;
+    color: #ffffff;
+    margin: 0;
+}
+
+.cart-sidebar__close {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 28px;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+}
+.cart-sidebar__close:hover {
+    color: #ffffff;
+}
+
+/* Список добавленных голосов */
+.cart-sidebar__list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Списочный элемент (артист внутри корзины) */
+.cart-item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+    padding: 12px 16px;
+    transition: background 0.2s;
+}
+
+.cart-item-row__info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.cart-item-row__artist {
+    font-family: 'Neulis Sans', sans-serif !important;
+    font-weight: 700;
+    font-size: 14px;
+    color: #ffffff;
+}
+
+.cart-item-row__country {
+    font-family: 'Neulis Sans', sans-serif !important;
+    font-weight: 400;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+}
+
+.cart-item-row__badge {
+    font-family: 'Neulis Sans', sans-serif !important;
+    font-weight: 700;
+    font-size: 13px;
+    background: #ffffff;
+    color: #111116;
+    padding: 4px 12px;
+    border-radius: 20px;
+}
+
+/* Пустая корзина */
+.cart-sidebar__empty {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.4);
+    font-family: 'Neulis Sans', sans-serif !important;
+    font-size: 14px;
+    margin-top: 40px;
+}
+
+/* Подвал корзины */
+.cart-sidebar__footer {
+    padding: 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.cart-sidebar__total {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Neulis Sans', sans-serif !important;
+    font-weight: 700;
+    font-size: 15px;
+    color: #ffffff;
+}
+
+/* Кнопка отправки внутри сайдбара */
+.sidebar-submit-btn {
+    width: 100%;
+    background: #ffffff;
+    color: #111116;
+    border: none;
+    padding: 14px;
+    border-radius: 24px;
+    font-family: 'Neulis Sans', sans-serif !important;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s, opacity 0.2s;
+}
+.sidebar-submit-btn:hover {
+    background: #e2e2e9;
+}
+.sidebar-submit-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* Кастомный скроллбар в корзине */
+.cart-sidebar__list::-webkit-scrollbar {
+    width: 4px;
+}
+.cart-sidebar__list::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+}
+/* --- ПРИНУДИТЕЛЬНЫЙ ШРИФТ ДЛЯ ВСЕХ ЭЛЕМЕНТОВ ОКНА РЕЗУЛЬТАТОВ --- */
+.esc-modal-overlay,
+.esc-modal-overlay *,
+.cart-sidebar,
+.cart-sidebar * {
+    font-family: 'Neulis Sans', sans-serif !important;
+}
+
+/* Фон подложки модального окна */
+.esc-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 10, 12, 0.8);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.esc-modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Контентная плашка результатов */
+.esc-modal-content {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 24px;
+    padding: 30px;
+    width: 90%;
+    max-width: 450px;
+    color: #ffffff;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+.esc-modal-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    letter-spacing: -0.5px;
+}
+
+.esc-modal-list {
+    text-align: left;
+    margin: 20px 0;
+    max-height: 240px;
+    overflow-y: auto;
+}
+
+/* Элемент списка (артист) в модалке */
+.esc-modal-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.esc-modal-item-artist {
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.esc-modal-item-country {
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    font-size: 11px;
+}
+
+.esc-modal-item-badge {
+    background: #ffffff;
+    color: #111116;
+    font-weight: 700;
+    padding: 3px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+}
+
+/* Кнопка закрытия модалки */
+.esc-modal-close-btn {
+    background: #ffffff;
+    color: #111116;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.2s;
+}
+
+.esc-modal-close-btn:hover {
+    background: #e2e2e9;
+}
+/* --- СТИЛИ ДЛЯ АДМИН ПАНЕЛИ --- */
+.admin-modal,
+.admin-modal * {
+    font-family: 'Neulis Sans', sans-serif !important;
+}
+
+.admin-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 10, 12, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.admin-modal.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.admin-content {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 28px;
+    padding: 35px;
+    width: 90%;
+    max-width: 500px;
+    color: #ffffff;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding-bottom: 12px;
+}
+
+.admin-title {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.admin-close {
+    background: transparent;
+    border: none;
+    color: rgba(255,255,255,0.5);
+    font-size: 28px;
+    cursor: pointer;
+    line-height: 1;
+}
+
+/* Элементы лидерборда */
+.admin-stats-summary {
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.admin-leaderboard {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.admin-leader-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255,255,255,0.04);
+    padding: 12px 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.06);
+}
+
+.admin-leader-name {
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.admin-leader-votes {
+    background: #ffffff;
+    color: #111116;
+    font-weight: 700;
+    padding: 3px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+}
+/* Кнопки переключения в админке */
+.admin-status-nav {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+.status-nav-btn {
+    flex: 1;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #fff;
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s;
+}
+.status-nav-btn.active[data-status="open"] { background: #4caf50; color: #fff; border-color: #4caf50; }
+.status-nav-btn.active[data-status="paused"] { background: #ff9800; color: #fff; border-color: #ff9800; }
+.status-nav-btn.active[data-status="closed"] { background: #e91e63; color: #fff; border-color: #e91e63; }
+
+/* Инфо-плашка на главном экране */
+.voting-status-bar {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 152, 0, 0.2);
+    border: 1px solid rgba(255, 152, 0, 0.4);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 10px 24px;
+    border-radius: 30px;
+    color: #ffffff;
+    font-family: 'Neulis Sans', sans-serif !important;
+    font-weight: 700;
+    font-size: 14px;
+    z-index: 99;
+    display: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+/* Когда кнопки заблокированы */
+.vote-control.disabled-overlay {
+    pointer-events: none !important;
+    opacity: 0.4 !important;
+}
+/* --- СТИЛИЗАЦИЯ И ТИПОГРАФИКА ДЛЯ СИСТЕМЫ ГОЛОСОВАНИЯ --- */
+.admin-modal-v2,
+.admin-modal-v2 *,
+.voting-status-bar,
+.cart-sidebar,
+.cart-sidebar * {
+    font-family: 'Neulis Sans', sans-serif !important;
+}
+
+/* Название артистов: Bold */
+.card__artist, .cart-item-row__artist {
+    font-family: 'Neulis Sans', sans-serif !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.3px !important;
+}
+
+/* Страна: Капс */
+.card__country, .cart-item-row__country {
+    font-family: 'Neulis Sans', sans-serif !important;
+    font-weight: 400 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+/* Кнопки переключения режимов в админке */
+.admin-status-nav {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+.status-nav-btn {
+    flex: 1;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #fff;
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s;
+}
+.status-nav-btn.active[data-status="open"] { background: #4caf50; color: #fff; border-color: #4caf50; }
+.status-nav-btn.active[data-status="paused"] { background: #ff9800; color: #fff; border-color: #ff9800; }
+.status-nav-btn.active[data-status="closed"] { background: #e91e63; color: #fff; border-color: #e91e63; }
+
+/* Инфо-плашка на главном экране */
+.voting-status-bar {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 152, 0, 0.2);
+    border: 1px solid rgba(255, 152, 0, 0.4);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 10px 24px;
+    border-radius: 30px;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 14px;
+    z-index: 99;
+    display: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+/* Когда кнопки временно заблокированы из-за смены режима */
+.vote-control.disabled-overlay {
+    pointer-events: none !important;
+    opacity: 0.4 !important;
+}
+/* Форма добавления карточки */
+.admin-add-card-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+}
+.admin-form-title {
+    font-size: 14px;
+    font-weight: 700;
+    text-align: left;
+    color: rgba(255,255,255,0.8);
+}
+/* ИДЕАЛЬНОЕ ОТОБРАЖЕНИЕ КАРТИНКИ В КАРТОЧКЕ */
+.card__image {
+    width: 100% !important;
+    aspect-ratio: 1 / 1 !important; /* Делает блок идеально квадратным, как на esc.vote */
+    
+    background-size: cover !important;     /* Картинка полностью заполняет блок без сплющивания */
+    background-position: center !important; /* Центрирует изображение, если оно прямоугольное */
+    background-repeat: no-repeat !important;
+    
+    border-radius: 16px !important; /* Красивое скругление углов для обложки */
+    overflow: hidden !important;
+}
+/* --- СТИЛИ ДЛЯ ТАЙМЕРА ОБРАТНОГО ОТСЧЕТА --- */
+.countdown-banner {
+    display: none; /* Показываем только если дата установлена */
+    width: 90%;
+    max-width: 500px;
+    margin: 30px auto 10px auto;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    padding: 16px 20px;
+    border-radius: 20px;
+    text-align: center;
+    color: #ffffff;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    font-family: 'Neulis Sans', sans-serif !important;
+}
+
+.countdown-banner__title {
+    font-size: 12px;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.6;
+    margin-bottom: 6px;
+}
+
+.countdown-banner__time {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+/* Железная привязка шрифта к динамическим карточкам */
+#cards-container .card,
+#cards-container .card__artist,
+#cards-container .card__music,
+#cards-container .card__country,
+#cards-container .vote-control,
+#cards-container .vote-control *,
+#cards-container .vote-amount,
+#cards-container .vote-btn {
+    font-family: 'Neulis Sans', sans-serif !important;
+}
+
+/* Настройки жирности под ваш Bold-файл (weight: 700) */
+#cards-container .card__artist,
+#cards-container .vote-amount,
+#cards-container .vote-btn {
+    font-weight: 700 !important;
+}
+
+/* Настройки для обычного текста (weight: 400) */
+#cards-container .card__music,
+#cards-container .card__country {
+    font-weight: 400 !important;
+}

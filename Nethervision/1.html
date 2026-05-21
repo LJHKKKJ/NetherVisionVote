@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NethervisionVote — ESC Simulator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- 1. ШАПКА САЙТА (ЖИДКОЕ СТЕКЛО) -->
+<header class="header">
+    <div class="header__container">
+        <!-- Левый блок пустой для симметрии -->
+        <div style="width: 140px;"></div> 
+
+        <!-- Фирменный логотип -->
+        <img src="images/Group 12.png" alt="Logo" class="header__logo" style="height: 40px; width: auto; object-fit: contain;">
+        
+        <!-- Корзина с точной капсулой и SVG-иконкой как на esc.vote -->
+        <div style="width: 140px; display: flex; justify-content: flex-end;">
+            <div id="header-cart" class="header__cart">
+                <!-- Точный SVG вектор тележки с макета -->
+                <svg class="cart-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="9" cy="21" r="1"></circle>
+                    <circle cx="20" cy="21" r="1"></circle>
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                </svg>
+                <span id="cart-count">0</span>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- 2. ТЕКСТ VOTING НА ЗАДНЕМ ПЛАНЕ -->
+<div class="bg-voting-wrapper">
+    <div class="voting-text-contour">VOTING</div>
+    <div class="voting-text-main">VOTING</div>
+    <div class="voting-text-contour">VOTING</div>
+</div>
+
+<!-- 3. ДИНАМИЧЕСКИЙ КОНТЕЙНЕР С КАРТОЧКАМИ -->
+<!-- Карточки теперь рендерятся из базы данных автоматически -->
+<main class="cards-container" id="cards-container"></main>
+
+<!-- 4. КРАСИВАЯ БОКОВАЯ КОРЗИНА (СПРАВА) -->
+<div id="cart-sidebar" class="cart-sidebar">
+    <div class="cart-sidebar__header">
+        <h2 class="cart-sidebar__title">Your Votes</h2>
+        <button id="close-cart-btn" class="cart-sidebar__close">&times;</button>
+    </div>
+    
+    <div id="cart-sidebar-list" class="cart-sidebar__list"></div>
+    
+    <div class="cart-sidebar__footer">
+        <div class="cart-sidebar__total">
+            <span>Total distributed:</span>
+            <span id="cart-sidebar-total-count">0</span>
+        </div>
+        <button id="sidebar-submit-btn" class="sidebar-submit-btn">Submit From Cart</button>
+    </div>
+</div>
+
+<!-- Затемняющий фон при открытии корзины -->
+<div id="cart-overlay" class="cart-overlay"></div>
+
+<script src="script2.js"></script>
+</body>
+</html>
